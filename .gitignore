@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# App outputs
+google_scholar_detail/outputs/
+university_reseachers/logs/
+university_reseachers/links/
+university_reseachers/university_data/
+*.xlsx
+*.json
+*.jsonl
+debug_*.html
+
+# Crossref cache
+.crossref_cache.json
+
+# Stop flag
+STOP_SCRAPING
