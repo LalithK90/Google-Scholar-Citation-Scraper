@@ -4,19 +4,28 @@ Google Scholar Scraper - Command Line Interface
 Simple script to scrape Google Scholar data without web interface.
 """
 
-import sys
 import logging
 import os
+import sys
+from pathlib import Path
 
-# Create logs directory if it doesn't exist
-os.makedirs('logs', exist_ok=True)
+# Project paths
+APP_DIR = Path(__file__).resolve().parent
+ROOT_DIR = APP_DIR.parent
+LOGS_DIR = ROOT_DIR / "logs"
+RESULT_DIR = ROOT_DIR / "result"
+LOG_FILE = LOGS_DIR / "scraper.log"
+
+# Create output directories if they don't exist
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+RESULT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Configure logging to both file and console
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/scraper.log', mode='w', encoding='utf-8'),
+        logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -51,7 +60,10 @@ def main():
     print()
     
     try:
-        from .selenium_scraper import SeleniumScholarScraper
+        try:
+            from .selenium_scraper import SeleniumScholarScraper
+        except ImportError:
+            from selenium_scraper import SeleniumScholarScraper
         
         # Extract scholar name from URL parameter or use default
         author_name = "scholar"
@@ -62,8 +74,9 @@ def main():
         scraper = SeleniumScholarScraper(
             profile_url=profile_url,
             headless=False,  # Show browser so you can solve CAPTCHAs if needed
-            download_dir=".",
-            author_sanitized=author_name
+            download_dir=str(RESULT_DIR),
+            author_sanitized=author_name,
+            json_path=str(RESULT_DIR / f"{author_name}.json"),
         )
         
         # Run the scraping
@@ -84,6 +97,8 @@ def main():
         print("=" * 70)
         print(f"📊 Total publications: {len(pubs)}")
         print(f"📁 JSON file: {scraper.json_path}")
+        if getattr(scraper, "excel_path", None):
+            print(f"📁 Excel file: {scraper.excel_path}")
         
         # Show citation statistics
         total_citations = sum(pub.get('citation_count', 0) for pub in pubs)

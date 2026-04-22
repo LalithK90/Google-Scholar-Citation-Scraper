@@ -31,3 +31,4 @@ debug_*.html
 
 # Stop flag
 STOP_SCRAPING
+logs

@@ -1,8 +1,12 @@
-from typing import Any, Dict, List
 import json
 import logging
+from pathlib import Path
+from typing import Any, Dict, List
 
-from .utils import sanitize_filename, unique_sheet_name
+try:
+    from .utils import sanitize_filename, unique_sheet_name
+except ImportError:
+    from utils import sanitize_filename, unique_sheet_name
 
 
 def _build_rows(scraper: Any):
@@ -87,7 +91,10 @@ def export_excel(scraper: Any, stream: bool = False) -> None:
         logging.error("Author metadata not extracted; cannot export Excel")
         return
 
-    excel_filename = f"{scraper.author_sanitized}.xlsx"
+    excel_filename = getattr(scraper, "excel_path", None)
+    if not excel_filename:
+        output_dir = Path(getattr(scraper, "download_dir", "."))
+        excel_filename = str(output_dir / f"{scraper.author_sanitized}.xlsx")
     logging.info(f"Exporting Excel to {excel_filename} in mode {getattr(scraper, 'excel_mode', 'flat')} (stream={stream})")
 
     rows_json_mode, main_rows, cited_rows, per_pub_sheets = _build_rows(scraper)

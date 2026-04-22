@@ -73,10 +73,15 @@ class SeleniumScholarScraper:
         self.browser = browser
         self.user_agent = user_agent
         self.save_interval = int(save_interval or 30)
-        self.download_dir = download_dir or os.getcwd()
+        self.output_dir = Path(download_dir or os.getcwd())
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.download_dir = str(self.output_dir)
         self.data: Dict[str, Any] = {"publications": []}
         self.author_sanitized = kwargs.get("author_sanitized") or "author"
-        self.json_path = kwargs.get("json_path") or f"{self.author_sanitized}.json"
+        self.json_path = kwargs.get("json_path") or str(
+            self.output_dir / f"{self.author_sanitized}.json")
+        self.excel_path = kwargs.get("excel_path") or str(
+            self.output_dir / f"{self.author_sanitized}.xlsx")
 
         # internal
         self._driver = None
@@ -371,7 +376,10 @@ class SeleniumScholarScraper:
             # Sanitize author name for filename
             safe_name = "".join(c if c.isalnum() or c in (" ", "-", "_") else "_" for c in author_name).strip().replace(" ", "_")
             self.author_sanitized = safe_name or "author"
-            self.json_path = f"{self.author_sanitized}.json"
+            self.json_path = str(
+                self.output_dir / f"{self.author_sanitized}.json")
+            self.excel_path = str(
+                self.output_dir / f"{self.author_sanitized}.xlsx")
             
             # Store in data
             self.data["profile"] = {
@@ -385,7 +393,10 @@ class SeleniumScholarScraper:
         except Exception as e:
             logging.warning(f"Could not extract author metadata: {e}")
             self.author_sanitized = "unknown_scholar"
-            self.json_path = f"{self.author_sanitized}.json"
+            self.json_path = str(
+                self.output_dir / f"{self.author_sanitized}.json")
+            self.excel_path = str(
+                self.output_dir / f"{self.author_sanitized}.xlsx")
 
     def _two_phase_scrape(self) -> None:
         """Phase 1: collect publication list and minimal metadata.
