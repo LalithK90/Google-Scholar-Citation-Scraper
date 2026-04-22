@@ -51,7 +51,7 @@ def main():
     print()
     
     try:
-        from selenium_scraper import SeleniumScholarScraper
+        from .selenium_scraper import SeleniumScholarScraper
         
         # Extract scholar name from URL parameter or use default
         author_name = "scholar"

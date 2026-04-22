@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 import json
 import logging
 
-from utils import sanitize_filename, unique_sheet_name
+from .utils import sanitize_filename, unique_sheet_name
 
 
 def _build_rows(scraper: Any):
