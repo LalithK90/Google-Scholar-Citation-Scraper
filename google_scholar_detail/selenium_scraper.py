@@ -98,6 +98,14 @@ class SeleniumScholarScraper:
             # This is expected when running in a background thread (e.g., web app)
             pass
 
+    def get_data(self) -> Dict[str, Any]:
+        """Return the current in-memory scrape payload.
+
+        This method keeps compatibility with the CLI flow, which expects a
+        scraper object exposing `get_data()` after `scrape_profile()`.
+        """
+        return self.data
+
     # ---------- driver lifecycle ----------
     def _import_selenium(self):
         try:
@@ -1261,7 +1269,10 @@ class SeleniumScholarScraper:
         optional `stream` parameter overrides the scraper.stream_excel flag.
         """
         try:
-            from exporter import export_excel as _exporter
+            try:
+                from .exporter import export_excel as _exporter
+            except ImportError:
+                from exporter import export_excel as _exporter
 
             use_stream = self.stream_excel if stream is None else bool(stream)
             return _exporter(self, stream=use_stream)
